@@ -14,7 +14,7 @@ public class Purchase : MonoBehaviour {
 	public Texture2D backgroundImg;
 	public GUISkin skin;
 	
-
+	private string [] productsList = new string[]{"gas"};
 	private string errorMsg = "";
 	private string statusMsg = "";
 	private string console = "";
@@ -113,7 +113,7 @@ public class Purchase : MonoBehaviour {
 			printToConsole("Session started successfully. uid: " + GamedoniaUsers.me._id);	
 
 			//Requesting products		
-			GamedoniaStore.RequestProducts (new string[] {"gas","fuel"}, 2);
+			GamedoniaStore.RequestProducts (productsList, productsList.Length);
 
 		}else {
 			errorMsg = Gamedonia.getLastError().ToString();
