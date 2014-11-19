@@ -1,0 +1,17 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Samples/Purchase/Scripts/Purchase.cs">
+    <Files>
+      <File FileName="Assets/Plugins/Gamedonia/GamedoniaStore.cs" Line="124" Column="2" />
+      <File FileName="Assets/Plugins/Gamedonia/GamedoniaData.cs" Line="51" Column="78" />
+      <File FileName="Assets/Plugins/Gamedonia/GamedoniaStoreInAppPurchases.cs" Line="61" Column="53" />
+      <File FileName="Assets/Samples/Purchase/Scripts/Purchase.cs" Line="145" Column="65" />
+      <File FileName="../simple-push/Assets/Plugins/Gamedonia/GamedoniaStore.cs" Line="127" Column="11" />
+      <File FileName="../simple-push/Assets/Plugins/Gamedonia/GamedoniaStoreInAppPurchases.cs" Line="128" Column="2" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
