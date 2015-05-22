@@ -32,7 +32,7 @@ static GamedoniaUIHelper * _sharedHelper;
 - (void) showAlertDialogWithParams:(NSDictionary *)params {
     GDAlertView * alert = [[GDAlertView alloc] initWithParams:params];
     alertViewSettings =
-    (NSDictionary *)(CFPropertyListCreateDeepCopy(kCFAllocatorDefault,
+    (NSDictionary *)CFBridgingRelease(CFPropertyListCreateDeepCopy(kCFAllocatorDefault,
                                                            (CFPropertyListRef)(params),
                                                            kCFPropertyListImmutable));
     //alertViewSettings = [NSDictionary dictionaryWithDictionary: params];

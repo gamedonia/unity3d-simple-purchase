@@ -186,6 +186,8 @@ public class FacebookBinding {
 							_init (appID, urlSchemeSuffix, frictionaless);
 							_initialized = true;
 					}
+			} else {
+				Debug.Log("Facebook plugin doesn't work in Unity editor, test your Facebook in a device");
 			}
 		}
 

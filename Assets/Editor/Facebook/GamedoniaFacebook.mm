@@ -238,7 +238,7 @@ void _dialog(const char* method, const char* parameters, BOOL allowNativeUI, con
         if (picture && picture.length > 0)
         {
             NSURL *pictureURL = [NSURL URLWithString:picture];
-            NSURLRequest *request = [NSURLRequest requestWithURL:pictureURL cachePolicy:0 timeoutInterval:2];
+            NSURLRequest *request = [NSURLRequest requestWithURL:pictureURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:2];
             NSURLResponse *response = nil;
             NSData *pictureData = [NSURLConnection sendSynchronousRequest:request returningResponse:&response error:NULL];
             image = [UIImage imageWithData:pictureData];

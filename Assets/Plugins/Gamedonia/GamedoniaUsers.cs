@@ -277,7 +277,7 @@ public class GamedoniaUsers
 			GamedoniaRequest.post("/account/retrieve",JsonMapper.ToJson(body),null,sessionToken.session_token,null,
 				delegate (bool success, object data) {
 					GDUserProfile user = null;
-					if (success) user = JsonMapper.ToObject<GDUserProfile>((string)data);
+					if (success) user = DeserializeUserProfile((string)data);
 					if (callback != null) callback(success, user);					
 				}
 		 	 )
@@ -290,7 +290,8 @@ public class GamedoniaUsers
 		Gamedonia.RunCoroutine(
 			GamedoniaRequest.get("/account/me",sessionToken.session_token,
 				delegate (bool success, object data) {
-					if (success) me = JsonMapper.ToObject<GDUserProfile>((string)data);
+					//if (success) me = JsonMapper.ToObject<GDUserProfile>((string)data);
+					if (success) me = DeserializeUserProfile((string)data);
 					if (callback != null) callback(success, me);					
 				}
 		 	 )
@@ -303,7 +304,7 @@ public class GamedoniaUsers
 		Gamedonia.RunCoroutine(
 			GamedoniaRequest.post("/account/link", JsonMapper.ToJson(credentials), null, sessionToken.session_token, null,
 				delegate (bool success, object data) {
-					if (success) me = JsonMapper.ToObject<GDUserProfile>((string)data);
+					if (success) me = DeserializeUserProfile((string)data);
 					if (callback != null) callback(success, me);					
 				}
 			)
@@ -317,7 +318,7 @@ public class GamedoniaUsers
 			Gamedonia.RunCoroutine(
 				GamedoniaRequest.post("/account/update",JsonMapper.ToJson(profile),null,sessionToken.session_token,null,
 					delegate (bool success, object data) {	
-						if (success) me = JsonMapper.ToObject<GDUserProfile>((string)data);
+						if (success) me = DeserializeUserProfile((string)data);
 						if (callback != null) callback(success);					
 					}
 			 	 )
@@ -326,7 +327,7 @@ public class GamedoniaUsers
 			Gamedonia.RunCoroutine(
 				GamedoniaRequest.put("/account/update",JsonMapper.ToJson(profile),null,sessionToken.session_token,null,
 					delegate (bool success, object data) {	
-						if (success) me = JsonMapper.ToObject<GDUserProfile>((string)data);
+						if (success) me = DeserializeUserProfile((string)data);
 						if (callback != null) callback(success);					
 					}
 			 	 )
@@ -431,7 +432,19 @@ public class GamedoniaUsers
 			})
 		);
 	}
-	
+
+
+	private static GDUserProfile DeserializeUserProfile (string data) {
+
+		Debug.Log ("Deserializing user");
+		IDictionary userMap = Json.Deserialize((string)data) as IDictionary;
+		GDUserProfile user = new GDUserProfile ();
+
+		user._id = userMap["_id"] as string;
+		user.profile = userMap["profile"] as Dictionary<string,object>;
+
+		return user;
+	}
 }
 
 public class GDUserProfile {

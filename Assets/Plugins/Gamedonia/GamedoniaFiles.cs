@@ -47,7 +47,7 @@ public class GamedoniaFiles: MonoBehaviour
 		//Debug.Log ("[GamedoniaFiles] Awake executed");
 		downloadFolder = Application.persistentDataPath + "/downloads";
 		downloads = new ArrayList ();
-		
+
 		downloadManager = new DownloadManager(downloadFolder);
 		downloadManager.maxConcurrentDownloads = 4;
 

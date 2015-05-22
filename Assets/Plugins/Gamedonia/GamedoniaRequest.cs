@@ -86,10 +86,9 @@ public static class GamedoniaRequest
 			if (Gamedonia.INSTANCE.debug) Debug.Log("[Api Response][" + url + "] - " + request.response.status + " " + request.response.Text);
 			callback(true, request.response.Text);
 		}else {
-			if (Gamedonia.INSTANCE.debug) Debug.Log("[Api Response][" + url + "] - " + request.response.status + " " + request.response.message + " " + request.response.Text);			
-			GDError error = JsonMapper.ToObject<GDError>(request.response.Text);
-			error.httpErrorCode = request.response.status;
-			error.httpErrorMessage = request.response.message;
+
+			printResponseLog(url,request.response);
+			GDError error = GDError.buildError(request.response);
 			Gamedonia.INSTANCE.lastError = error;
 			callback(false, request.response.message);
 		}
@@ -162,10 +161,9 @@ public static class GamedoniaRequest
 			if (Gamedonia.INSTANCE.debug) Debug.Log("[Api Response][" + url + "] - " + request.response.status + " " + request.response.Text);
 			callback(true, request.response.Text);
 		}else {
-			if (Gamedonia.INSTANCE.debug) Debug.Log("[Api Response][" + url + "] - " + request.response.status + " " + request.response.message + " " + request.response.Text);
-			GDError error = JsonMapper.ToObject<GDError>(request.response.Text);
-			error.httpErrorCode = request.response.status;
-			error.httpErrorMessage = request.response.message;
+
+			printResponseLog(url,request.response);
+			GDError error = GDError.buildError(request.response);
 			Gamedonia.INSTANCE.lastError = error;
 			callback(false, request.response.message);
 		}
@@ -213,10 +211,9 @@ public static class GamedoniaRequest
 			if (Gamedonia.INSTANCE.debug) Debug.Log("[Api Response][" + url + "] - " + request.response.status + " " + request.response.Text);
 			callback(true, request.response.Text);
 		}else {
-			if (Gamedonia.INSTANCE.debug) Debug.Log("[Api Response][" + url + "] - " + request.response.status + " " + request.response.message + " " + request.response.Text);
-			GDError error = JsonMapper.ToObject<GDError>(request.response.Text);
-			error.httpErrorCode = request.response.status;
-			error.httpErrorMessage = request.response.message;
+
+			printResponseLog(url,request.response);
+			GDError error = GDError.buildError(request.response);
 			Gamedonia.INSTANCE.lastError = error;
 			callback(false, request.response.message);
 		}
@@ -234,7 +231,7 @@ public static class GamedoniaRequest
 		string path = _baseURL + "/" + _version + url;
 		string date = GetCurrentDate();
 		Request request = new Request("delete",path);
-		request.AddHeader(GD_SESSION_TOKEN,sessionToken);
+		if (!string.IsNullOrEmpty(sessionToken)) request.AddHeader(GD_SESSION_TOKEN,sessionToken);
 		request.AddHeader(GD_APIKEY, _apiKey);
 		request.AddHeader("Date", date);
 		request.AddHeader(GD_SIGNATURE, Sign(_apiKey, _secret, date, "DELETE", request.uri.AbsolutePath));
@@ -247,15 +244,24 @@ public static class GamedoniaRequest
 			if (Gamedonia.INSTANCE.debug) Debug.Log("[Api Response][" + url + "] - " + request.response.status + " " + request.response.Text);
 			callback(true, request.response.Text);
 		}else {
-			if (Gamedonia.INSTANCE.debug) Debug.Log("[Api Response][" + url + "] - " + request.response.status + " " + request.response.message + " " + request.response.Text);
-			GDError error = JsonMapper.ToObject<GDError>(request.response.Text);
-			error.httpErrorCode = request.response.status;
-			error.httpErrorMessage = request.response.message;
+
+			printResponseLog(url, request.response);
+			GDError error = GDError.buildError(request.response);
 			Gamedonia.INSTANCE.lastError = error;
 			callback(false, request.response.message + ' ' + request.response.Text);
 		}	
 	}
 		
+	private static void printResponseLog(string url, Response response) {
+
+		if (Gamedonia.INSTANCE.debug) {
+			String debugMsg = "[Api Response][" + url + "] - " + response.status;
+			if (!String.IsNullOrEmpty(response.message)) debugMsg += " " + response.message;
+			if (!String.IsNullOrEmpty(response.Text)) debugMsg += " " + response.Text;	
+			Debug.Log(debugMsg);
+		}
+
+	}
 	
 	/*
 	 * Security Support Methods
@@ -265,15 +271,15 @@ public static class GamedoniaRequest
 	private static string Sign(String apiKey, String secret, String data, String contentType, String date, String requestMethod, String path) {					
 		
 		string contentMd5 = Md5(data);
-		
+
 		string toSign = requestMethod + "\n" + contentMd5 + "\n" + contentType + "\n" + date + "\n" + path;	
 		
 		string signature = HMACSHA1(secret, toSign);
 		
-		/*if (Gamedonia.INSTANCE.debug) {
+		if (Gamedonia.INSTANCE.debug) {
 			Debug.Log("hmac:" + signature);
 			Debug.Log("Md5: " + contentMd5);
-		}*/
+		}
 		return signature;
 					
 	}
@@ -285,10 +291,10 @@ public static class GamedoniaRequest
 		
 		string signature = HMACSHA1(secret, toSign);
 		
-		/*if (Gamedonia.INSTANCE.debug) {
+		if (Gamedonia.INSTANCE.debug) {
 			Debug.Log("hmac:" + signature);
-			Debug.Log("Md5: " + contentMd5);
-		}*/
+			//Debug.Log("Md5: " + contentMd5);
+		}
 		return signature;
 					
 	}

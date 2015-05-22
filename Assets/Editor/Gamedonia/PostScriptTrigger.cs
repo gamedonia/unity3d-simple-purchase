@@ -25,11 +25,29 @@ public static class PostBuildTrigger
         Debug.Log("Starting Gamedonia Build PostProcess");
  
 		projectPath = path;	
-		
+
+		DeleteDeprecatedFiles ();
 		ProcessPlugins();
 		
     }
-	
+
+
+	private static void DeleteDeprecatedFiles() {
+
+		string [] filesToDelete = new string[] {
+			Application.dataPath + Path.DirectorySeparatorChar + "Editor" + Path.DirectorySeparatorChar  + "InAppPurchases" + Path.DirectorySeparatorChar + "JSONKit.m",
+			Application.dataPath + Path.DirectorySeparatorChar + "Editor" + Path.DirectorySeparatorChar  + "InAppPurchases" + Path.DirectorySeparatorChar + "JSONKit.h"
+		};
+
+
+		foreach (string f in filesToDelete) {
+			Debug.Log("Removing deprecated file: " + f);
+			File.Delete(f);
+		}
+
+	}
+
+
 	private static void ProcessPlugins() {
 						
 

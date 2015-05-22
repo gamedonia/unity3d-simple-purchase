@@ -7,7 +7,6 @@
 //
 
 #import "IAPHelper.h"
-#import "JSONKit.h"
 #import "SKProduct+priceAsString.h"
 #import "NSData+Base64.h"
 
@@ -79,7 +78,19 @@
     
     [responseData setValue:productsList forKey:@"products"];
     
-    if ([responseData JSONString] != nil) json = [responseData JSONString];
+    
+    NSError *error;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:responseData
+                                                       options:0 // Pass 0 if you don't care about the readability of the generated string
+                                                         error:&error];
+    
+    if (! jsonData) {
+        NSLog(@"Got an error: %@", error);
+    } else {
+        json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    }
+    
+    //if ([responseData JSONString] != nil) json = [responseData JSONString];
     
     NSLog(@"Received products %@", json);
 	UnitySendMessage("Gamedonia", "ProductsRequested", [json UTF8String]);

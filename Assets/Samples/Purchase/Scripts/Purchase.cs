@@ -29,6 +29,12 @@ public class Purchase : MonoBehaviour {
 
 	void Start() {
 
+		if (  Gamedonia.INSTANCE == null) {
+			
+			statusMsg = "Missing Api Key/Secret. Check the README.txt for more info.";
+			return;
+		}
+
 		GamedoniaUsers.Authenticate(OnLogin);
 		printToConsole ("Starting session with Gamedonia...");
 
@@ -40,8 +46,6 @@ public class Purchase : MonoBehaviour {
 		GDInAppService buyService = new GDInAppService();
 		buyService.RegisterEvent += new InAppEventHandler(OnProductPurchased);
 		GamedoniaStoreInAppPurchases.AddPurchaseService(buyService);
-
-
 	}
 
 	void OnGUI () {
@@ -93,9 +97,8 @@ public class Purchase : MonoBehaviour {
 	private void drive() {
 
 		if (gasProgress <= 0) {
-			printToConsole("Out of GAS!, purchase more pls!");
+			printToConsole("Out of GAS! Purchase more please!");
 		}else {
-
 			updateGas(-GAS_DRIVE_CONSUMPTION_REFILL);
 		}
 
@@ -131,7 +134,7 @@ public class Purchase : MonoBehaviour {
 						printToConsole ("Received Product: " + product.identifier + " price: " + product.priceLocale + " description: " + product.description);
 				}
 		} else {
-			printToConsole("Unable to request products!, message: " + GamedoniaStore.productsRequestResponse.message);
+			printToConsole("Unable to request products! message: " + GamedoniaStore.productsRequestResponse.message);
 		}
 	}
 
@@ -142,10 +145,10 @@ public class Purchase : MonoBehaviour {
 				statusMsg = "Purchasing GAS...";
 				GamedoniaStore.BuyProduct ("gas");
 			}else {
-				printToConsole("Already full of gas!, drive to spent some");
+				printToConsole("Already full of gas! Drive to spend some.");
 			}
 		} else {
-			printToConsole("Purchase is disabled in Editor mode!!");
+			errorMsg = "Purchase is disabled in Editor mode! Try the sample on a device.";
 		}
 	}
 
@@ -154,9 +157,11 @@ public class Purchase : MonoBehaviour {
 		GameObject go = GameObject.FindWithTag ("MainCamera");
 		//establish parameter hash:
 		Hashtable ht = iTween.Hash("from",gasProgress,"to",gasProgress+value,"time",.5f,"onupdate","changeProgress");
-		
+
 		//make iTween call:
-		iTween.ValueTo(go,ht);
+		if (!(iTween.Count (gameObject) > 0)) {
+			iTween.ValueTo (go, ht);
+		}
 	}
 
 	private void OnProductPurchased() {
@@ -168,7 +173,7 @@ public class Purchase : MonoBehaviour {
 		printToConsole (details);
 
 		if (purchase.success) {
-			printToConsole("GAS refilled");
+			printToConsole("GAS refilled.");
 			updateGas(GAS_DRIVE_CONSUMPTION_REFILL);
 		}
 	}

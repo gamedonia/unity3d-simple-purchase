@@ -31,19 +31,27 @@ public class GamedoniaDevices {
 		device.deviceType = platforms.ContainsKey(Application.platform.ToString()) ? platforms[Application.platform.ToString()] : "";
 
 		registeredServices = 0;
-		foreach(GDService service in services) {
-			service.GetProfile(device, 
-				delegate (bool success) {
+
+		if (services.Count == 0) {
+			callback (true, device);
+		} else {
+			foreach(GDService service in services) {
+				service.GetProfile(device, 
+				                   delegate (bool success) {
 					if (!success)
 						result = false;
-				
+					
 					registeredServices ++;
 					if ( registeredServices == services.Count )
 						if (callback != null) callback(result, device);
 				}
-			);
+				);
+			}
 		}
-		
+
+
+
+
 	}
 	
 	public static void Register(GDDeviceProfile device, Action<bool> callback = null) {

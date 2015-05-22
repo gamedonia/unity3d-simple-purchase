@@ -1,6 +1,10 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
+using HTTP;
+using LitJson_Gamedonia;
+using MiniJSON_Gamedonia;
 	
 	
 public class Gamedonia: MonoBehaviour {
@@ -46,6 +50,7 @@ public class Gamedonia: MonoBehaviour {
 		_instance = this;
 		DontDestroyOnLoad(this);
 		GamedoniaRequest.initialize(ApiKey,Secret, ApiServerUrl, ApiVersion.ToString());
+		Debug.Log ("Gamedonia initialized successfully");
 	}
 	
 
@@ -77,6 +82,16 @@ public class Gamedonia: MonoBehaviour {
 		return (pushScript != null || inappScript != null);
 
 	}
+
+	public static void isInternetConnectionAvailable(Action<bool> callback) {
+
+		Gamedonia.RunCoroutine(
+			GamedoniaRequest.get("/ping","",delegate (bool success, object data) {
+				if (callback!=null) callback(success);
+			})
+		);
+	
+	}
 }
 	
 
@@ -89,5 +104,21 @@ public class GDError {
 	
 	public string ToString() {		
 		return code.ToString() + " - " + message;		
+	}
+
+	public static GDError buildError(Response response) {
+
+		GDError error = null;
+		if (!String.IsNullOrEmpty (response.Text)) {
+			error = JsonMapper.ToObject<GDError>(response.Text);
+			error.httpErrorCode = response.status;
+			if (!String.IsNullOrEmpty(response.message)) error.httpErrorMessage = response.message;
+
+		} else {
+			error = new GDError();
+			error.httpErrorCode = response.status;
+		}
+
+		return error;
 	}
 }

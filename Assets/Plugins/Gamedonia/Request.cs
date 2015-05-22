@@ -131,6 +131,12 @@ namespace HTTP
 							Debug.LogError("Security Exception. Policy file load failed!");							
 						}*/								
 						#endif
+						//Init the response
+						if (filePath != null) {
+							response = new Response(filePath, onlyContentLength);
+						}else {
+							response = new Response ();
+						}
 
 						var client = new TcpClient ();
 
@@ -154,11 +160,6 @@ namespace HTTP
 							}
 
 							WriteToStream (ostream);
-							if (filePath != null) {
-								response = new Response(filePath, onlyContentLength);
-							}else {
-								response = new Response ();
-							}
 
 							if (downloadDelegate != null) response.downloadDelegate = downloadDelegate;
 
@@ -186,6 +187,7 @@ namespace HTTP
 
 				} catch (SocketException e) {
 					response.status = -100;
+					response.message = "Failed";
 					if (downloadDelegate != null) {
 						IOErrorEvent ioErrorEvent = new IOErrorEvent();
 						ioErrorEvent.ErrorCode = e.ErrorCode;
@@ -195,6 +197,7 @@ namespace HTTP
 					Debug.LogException(e);
 				} catch (IOException ioex) {
 					response.status = -100;
+					response.message = "Failed";
 					if (downloadDelegate != null) {
 						IOErrorEvent ioErrorEvent = new IOErrorEvent();
 						ioErrorEvent.Message = ioex.Message;
@@ -243,10 +246,16 @@ namespace HTTP
 						}	
 						*/
 						#endif
-						
+
+						//Init the response
+						if (filePath != null) {
+							response = new Response(filePath, onlyContentLength);
+						}else {
+							response = new Response ();
+						}
+
 						var client = new TcpClient ();
-						
-						
+												
 						client.SendTimeout = 5000;
 						client.ReceiveTimeout = 5000;
 						
@@ -266,11 +275,7 @@ namespace HTTP
 							}
 							
 							WriteToStream (ostream);
-							if (filePath != null) {
-								response = new Response(filePath, onlyContentLength);
-							}else {
-								response = new Response ();
-							}
+
 							
 							if (downloadDelegate != null) response.downloadDelegate = downloadDelegate;
 							
@@ -298,6 +303,7 @@ namespace HTTP
 					
 				} catch (SocketException e) {
 					response.status = -100;
+					response.message = "Failed";
 					if (downloadDelegate != null) {
 						IOErrorEvent ioErrorEvent = new IOErrorEvent();
 						ioErrorEvent.ErrorCode = e.ErrorCode;
@@ -307,6 +313,7 @@ namespace HTTP
 					Debug.LogException(e);
 				} catch (IOException ioex) {
 					response.status = -100;
+					response.message = "Failed";
 					if (downloadDelegate != null) {
 						IOErrorEvent ioErrorEvent = new IOErrorEvent();
 						ioErrorEvent.Message = ioex.Message;
@@ -332,71 +339,6 @@ namespace HTTP
 
 
 
-
-
-		public void Send2() {
-			
-			/*isDone = false;
-			state = RequestState.Waiting;
-			
-			try {
-				var retry = 0;
-				while (++retry < maximumRetryCount) {
-					if (useCache) {
-						string etag = "";
-						if (etags.TryGetValue (uri.AbsoluteUri, out etag)) {
-							SetHeader ("If-None-Match", etag);
-						}
-					}
-					SetHeader ("Host", uri.Host);
-					var client = new TcpClient ();
-					client.Connect (uri.Host, uri.Port);
-					using (var stream = client.GetStream ()) {
-						var ostream = stream as Stream;
-						if (uri.Scheme.ToLower() == "https") {
-							ostream = new SslStream (stream, false, new RemoteCertificateValidationCallback (ValidateServerCertificate));
-							try {
-								var ssl = ostream as SslStream;
-								ssl.AuthenticateAsClient (uri.Host);
-							} catch (Exception e) {
-								Debug.LogError ("Exception: " + e.Message);
-								return;
-							}
-						}
-						WriteToStream (ostream);
-						response = new Response ();
-						state = RequestState.Reading;
-						response.ReadFromStream(ostream);
-					}
-					client.Close ();
-					switch (response.status) {
-					case 307:
-					case 302:
-					case 301:
-						uri = new Uri (response.GetHeader ("Location"));
-						continue;
-					default:
-						retry = maximumRetryCount;
-						break;
-					}
-				}
-				if (useCache) {
-					string etag = response.GetHeader ("etag");
-					if (etag.Length > 0)
-						etags[uri.AbsoluteUri] = etag;
-				}
-				
-			} catch (Exception e) {
-				Console.WriteLine ("Unhandled Exception, aborting request.");
-				Console.WriteLine (e);
-				exception = e;
-				response = null;
-			}
-			state = RequestState.Done;
-			isDone = true;*/
-			Debug.Log("Probando grome");
-			
-		}
 		
 		public string Text {
 			set { bytes = System.Text.Encoding.UTF8.GetBytes (value); }

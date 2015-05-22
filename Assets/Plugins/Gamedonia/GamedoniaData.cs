@@ -43,10 +43,16 @@ public class GamedoniaData  {
 	}
 
 	public static void Delete(string collection, List<string> entities, bool all, Action<bool,int> callback = null) {
+
+		string sessionToken = null;
+		if (GamedoniaUsers.isLoggedIn ())
+						sessionToken = GamedoniaUsers.GetSessionToken ();
+		//string sessionToken = 
+
 		if (all) {
 
 			Gamedonia.RunCoroutine(
-				GamedoniaRequest.delete("/data/" + collection + "/delete?all=true", GamedoniaUsers.GetSessionToken(),
+				GamedoniaRequest.delete("/data/" + collection + "/delete?all=true", sessionToken,
 			        delegate (bool success, object data) {	
 						IDictionary response = Json.Deserialize((string)data) as IDictionary;		
 						if (success) {
@@ -61,7 +67,7 @@ public class GamedoniaData  {
 		}else {
 
 			Gamedonia.RunCoroutine(
-				GamedoniaRequest.delete("/data/" + collection + "/delete?keys=" + String.Join(",",entities.ToArray()), GamedoniaUsers.GetSessionToken(),
+				GamedoniaRequest.delete("/data/" + collection + "/delete?keys=" + String.Join(",",entities.ToArray()), sessionToken,
 			        delegate (bool success, object data) {
 						IDictionary response = Json.Deserialize((string)data) as IDictionary;
 						if (success) {

@@ -10,7 +10,7 @@
   [formatter setLocale:[self priceLocale]];
 
   NSString *str = [formatter stringFromNumber:[self price]];
-  [formatter release];
+  //[formatter release];
   return str;
 }
 

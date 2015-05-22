@@ -19,7 +19,7 @@ inline static void onStatus(const char *eventName, const char *message) {
             UnitySendMessage("Gamedonia", "OnFacebookStatus", [jsonString UTF8String]);
             
             //NSLog(@"JSON: %@", jsonString);
-            [jsonString release];      
+            //[jsonString release];
         }
     }
     

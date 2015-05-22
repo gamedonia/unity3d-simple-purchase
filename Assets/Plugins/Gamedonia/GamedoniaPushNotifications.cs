@@ -107,19 +107,76 @@ public class GamedoniaPushNotifications : MonoBehaviour {
 
 	#elif UNITY_IOS
 
-	//public static RemoteNotificationType notificationType = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
-	public static RemoteNotificationType notificationType = 0;
+		#if UNITY_5
 
-	[DllImport("__Internal")]
-	private static extern void _RegisterForRemoteNotifications(int types);
+		//public static RemoteNotificationType notificationType = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
+		public static UnityEngine.iOS.NotificationType notificationType = 0;
 
-	private static void RegisterForRemoteNotifications () {
-		//NotificationServices.RegisterForRemoteNotificationTypes(GamedoniaPushNotifications.notificationType);
+		[DllImport("__Internal")]
+		private static extern void _RegisterForRemoteNotifications(int types);
 
+		private static void RegisterForRemoteNotifications () {
+			//NotificationServices.RegisterForRemoteNotificationTypes(GamedoniaPushNotifications.notificationType);
+
+				if (GamedoniaPushNotifications.Instance.enableBadge) notificationType |= UnityEngine.iOS.NotificationType.Badge;
+				if (GamedoniaPushNotifications.Instance.enableAlert) notificationType |= UnityEngine.iOS.NotificationType.Alert;
+				if (GamedoniaPushNotifications.Instance.enableSound) notificationType |= UnityEngine.iOS.NotificationType.Sound;
+
+				string sysInfo = SystemInfo.operatingSystem;
+				sysInfo = sysInfo.Replace("iPhone OS ", "");
+				string[] chunks = sysInfo.Split('.');
+				int majorVersion = int.Parse(chunks[0]);
+				if (majorVersion >= 8) {
+					if (Instance.debug) Debug.Log("[Register Notification] major Version > 8");
+					_RegisterForRemoteNotifications ((int)GamedoniaPushNotifications.notificationType);
+				} else {
+					if (Instance.debug) Debug.Log("[Register Notification] Unity Standard registration process");
+					UnityEngine.iOS.NotificationServices.RegisterForNotifications (GamedoniaPushNotifications.notificationType);
+				}
+
+
+		}
+		private static string GetDeviceTokenForRemoteNotifications () {
+			return UnityEngine.iOS.NotificationServices.deviceToken != null ? System.BitConverter.ToString(UnityEngine.iOS.NotificationServices.deviceToken).ToLower().Replace("-", "") : null;
+		}		
+		private static List<Dictionary<string,object>> GetRemoteNotifications() {
+			List<Dictionary<string,object>> result = new List<Dictionary<string,object>>();		
+				
+			if (UnityEngine.iOS.NotificationServices.remoteNotificationCount > 0) {
+				for (int r = 0; r < UnityEngine.iOS.NotificationServices.remoteNotificationCount; r++) {
+					UnityEngine.iOS.RemoteNotification remoteNotification = UnityEngine.iOS.NotificationServices.GetRemoteNotification(r);
+					result.Add(new Dictionary<string,object>() {{"message", remoteNotification.alertBody},
+																{"payload", remoteNotification.userInfo}});
+				}
+				UnityEngine.iOS.NotificationServices.ClearRemoteNotifications();
+				if (GamedoniaPushNotifications.notificationType == UnityEngine.iOS.NotificationType.Badge) ClearBadge();
+			}
+			
+			return result;
+		}
+		[DllImport("__Internal")]
+		private static extern void ClearBadge ();
+
+		private static string GetErrorRemoteNotifications() {
+			return UnityEngine.iOS.NotificationServices.registrationError;
+		}
+
+
+		#else
+
+		//public static RemoteNotificationType notificationType = RemoteNotificationType.Alert | RemoteNotificationType.Badge | RemoteNotificationType.Sound;
+		public static RemoteNotificationType notificationType = 0;
+		
+		[DllImport("__Internal")]
+		private static extern void _RegisterForRemoteNotifications(int types);
+		
+		private static void RegisterForRemoteNotifications () {
+			//NotificationServices.RegisterForRemoteNotificationTypes(GamedoniaPushNotifications.notificationType);
+			
 			if (GamedoniaPushNotifications.Instance.enableBadge) notificationType |= RemoteNotificationType.Badge;
 			if (GamedoniaPushNotifications.Instance.enableAlert) notificationType |= RemoteNotificationType.Alert;
 			if (GamedoniaPushNotifications.Instance.enableSound) notificationType |= RemoteNotificationType.Sound;
-
+			
 			string sysInfo = SystemInfo.operatingSystem;
 			sysInfo = sysInfo.Replace("iPhone OS ", "");
 			string[] chunks = sysInfo.Split('.');
@@ -131,43 +188,44 @@ public class GamedoniaPushNotifications : MonoBehaviour {
 				if (Instance.debug) Debug.Log("[Register Notification] Unity Standard registration process");
 				NotificationServices.RegisterForRemoteNotificationTypes (GamedoniaPushNotifications.notificationType);
 			}
-
-
-	}
-	private static string GetDeviceTokenForRemoteNotifications () {
-		return NotificationServices.deviceToken != null ? System.BitConverter.ToString(NotificationServices.deviceToken).ToLower().Replace("-", "") : null;
-	}		
-	private static List<Dictionary<string,object>> GetRemoteNotifications() {
-		List<Dictionary<string,object>> result = new List<Dictionary<string,object>>();		
 			
-		if (NotificationServices.remoteNotificationCount > 0) {
-			for (int r = 0; r < NotificationServices.remoteNotificationCount; r++) {
-				RemoteNotification remoteNotification = NotificationServices.GetRemoteNotification(r);
-				result.Add(new Dictionary<string,object>() {{"message", remoteNotification.alertBody},
-															{"payload", remoteNotification.userInfo}});
-			}
-			NotificationServices.ClearRemoteNotifications();
-			if (GamedoniaPushNotifications.notificationType == RemoteNotificationType.Badge) ClearBadge();
+			
 		}
+		private static string GetDeviceTokenForRemoteNotifications () {
+			return NotificationServices.deviceToken != null ? System.BitConverter.ToString(NotificationServices.deviceToken).ToLower().Replace("-", "") : null;
+		}		
+		private static List<Dictionary<string,object>> GetRemoteNotifications() {
+			List<Dictionary<string,object>> result = new List<Dictionary<string,object>>();		
+			
+			if (NotificationServices.remoteNotificationCount > 0) {
+				for (int r = 0; r < NotificationServices.remoteNotificationCount; r++) {
+					RemoteNotification remoteNotification = NotificationServices.GetRemoteNotification(r);
+					result.Add(new Dictionary<string,object>() {{"message", remoteNotification.alertBody},
+						{"payload", remoteNotification.userInfo}});
+				}
+				NotificationServices.ClearRemoteNotifications();
+				if (GamedoniaPushNotifications.notificationType == RemoteNotificationType.Badge) ClearBadge();
+			}
+			
+			return result;
+		}
+		[DllImport("__Internal")]
+		private static extern void ClearBadge ();
 		
-		return result;
-	}
-	[DllImport("__Internal")]
-	private static extern void ClearBadge ();
+		private static string GetErrorRemoteNotifications() {
+			return NotificationServices.registrationError;
+		}
+		#endif
 
-	private static string GetErrorRemoteNotifications() {
-		return NotificationServices.registrationError;
-	}
 
-	
 	#elif UNITY_ANDROID
 
 	private static string registrationId = null;
 	private static string errorId = null;
 	private static List<Dictionary<string,object>> notifsAndroid = new List<Dictionary<string,object>>();
 
-	public void AddNotification(string json) {
-		if (debug) Debug.Log("AddNotification: " + json);
+	public static void AddNotification(string json) {
+		if (Instance.debug) Debug.Log("AddNotification: " + json);
 		Dictionary<string,object> notification = new Dictionary<string,object>();
 		
 		IDictionary data = Json.Deserialize(json) as IDictionary;
@@ -192,6 +250,10 @@ public class GamedoniaPushNotifications : MonoBehaviour {
 	
 	public void SetDeviceTokenForRemoteNotifications(string regId) {
 		registrationId = regId;
+
+		Debug.Log ("Device Token Received: " + regId);
+		GamedoniaDevices.device.deviceToken = regId;
+		GamedoniaDevices.GetProfile(OnGetProfile);
 	}
 
 	public void SetRemoteNotificationsRegistrationError(string error) {
@@ -265,8 +327,24 @@ public class GamedoniaPushNotifications : MonoBehaviour {
 	private static string GetDeviceTokenForRemoteNotifications() {
 		return registrationId;
 	}	
+
+	private static void _GetRemoteNotifications() {
+		AndroidJNI.AttachCurrentThread(); 
+		
+		AndroidJavaClass notifClass = new AndroidJavaClass("com.gamedonia.pushnotifications.PushNotifications");
+		string[] notifications = notifClass.CallStatic<string[]>("getRemoteNotifications",new object [] {});
+
+		foreach (string notification in notifications) {
+			AddNotification(notification);
+		}
+
+	}
 	
 	private static List<Dictionary<string,object>> GetRemoteNotifications() {
+		if( Application.platform == RuntimePlatform.Android ) {
+			_GetRemoteNotifications();
+		}
+		
 		List<Dictionary<string,object>> result = new List<Dictionary<string,object>>();
 		
 		if (notifsAndroid.Count > 0) {
@@ -410,24 +488,35 @@ public class GamedoniaPushNotifications : MonoBehaviour {
 		DontDestroyOnLoad(this);
 		
 		#if UNITY_EDITOR 
-		#elif UNITY_IOS					
+		#elif UNITY_IOS
+			#if UNITY_5 
+			if ((notificationType & UnityEngine.iOS.NotificationType.Badge) != 0 && clearBadgeOnActivate) {
+				ClearBadge();
+			}
+			#else			
 			if ((notificationType & RemoteNotificationType.Badge) != 0 && clearBadgeOnActivate) {
 				ClearBadge();
 			}
+			#endif				
 		#endif
 		
-		
+		/*
 		GDService service = new GDService();
 		service.ProfileEvent += new ProfilerEventHandler(Profile);
 		GamedoniaDevices.services.Add(service);
+		*/
 
-		GamedoniaDevices.GetProfile(OnGetProfile);
+
+		if (!Application.isEditor) {
+			RegisterForRemoteNotifications ();
+		}
+
 	}	
 
 	private void OnGetProfile(bool success, GDDeviceProfile device) {
 		if (success) {
 
-
+			Debug.Log ("OnGetProfile deviceType: " + device.deviceType);
 			//label.text += "\n Register device with id => " + device.deviceId;
 			//label.text += "\n Register device with platform => " + device.deviceType;
 			//label.text += "\n Register device for remote notification with token => " + device.deviceToken;
@@ -483,10 +572,16 @@ public class GamedoniaPushNotifications : MonoBehaviour {
 		if (debug) Debug.Log("[Remote Notification] OnApplicationPause : " + pause);
 		#if UNITY_EDITOR
 		#elif UNITY_IOS
-			if (!pause) { 					
+			if (!pause) { 		
+				#if UNITY_5
+				if ((notificationType & UnityEngine.iOS.NotificationType.Badge) != 0 && clearBadgeOnActivate) {
+					ClearBadge();
+				}				
+				#else
 				if ((notificationType & RemoteNotificationType.Badge) != 0 && clearBadgeOnActivate) {
 					ClearBadge();
 				}
+				#endif					 
 			}
 		#elif UNITY_ANDROID
 			if (!pause) {
@@ -515,8 +610,18 @@ public class GamedoniaPushNotifications : MonoBehaviour {
 		#endif
 	}	
 
+	void DidRegisterForRemoteNotifications(string data) {
 
-	
+		Debug.Log ("Device Token Received: " + data);
+		GamedoniaDevices.device.deviceToken = data;
+		GamedoniaDevices.GetProfile(OnGetProfile);
+	}
+
+	void DidFailToRegisterForRemoteNotificationsWithError(string error) {
+
+		Debug.Log ("Remote notifications registration failed with error: " + error);
+
+	}
 }
 
 public class GDPushService {
