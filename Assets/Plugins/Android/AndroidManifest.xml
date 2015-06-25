@@ -27,7 +27,7 @@
 	<uses-permission android:name="android.permission.WAKE_LOCK" />	<!-- Keeps the processor from sleeping when a message is received. -->	
 	
 	<!-- InApp purchase permissions -->
-	<uses-permission android:name="com.android.vending.BILLING" />
+	<!-- <uses-permission android:name="com.android.vending.BILLING" /> -->
 	
     <application
 		android:icon="@drawable/app_icon"
@@ -74,8 +74,10 @@
        
         
         <!-- InApp purchase settings -->
+        <!--
         <activity android:name="com.gamedonia.inapppurchase.BillingProxyActivity" android:theme="@style/Theme.Transparent"></activity>
         <service android:name="com.gamedonia.inapppurchase.UnityAndroidInterface" />
+        -->		
 		    
     </application>
 	
