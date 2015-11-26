@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Text;
 using System;
 using LitJson_Gamedonia;
+using Gamedonia.Backend;
 
 
 public class Purchase : MonoBehaviour {
@@ -29,7 +30,7 @@ public class Purchase : MonoBehaviour {
 
 	void Start() {
 
-		if (  Gamedonia.INSTANCE == null) {
+		if (  GamedoniaBackend.INSTANCE == null) {
 			
 			statusMsg = "Missing Api Key/Secret. Check the README.txt for more info.";
 			return;
@@ -119,7 +120,7 @@ public class Purchase : MonoBehaviour {
 			GamedoniaStore.RequestProducts (productsList, productsList.Length);
 
 		}else {
-			errorMsg = Gamedonia.getLastError().ToString();
+			errorMsg = GamedoniaBackend.getLastError().ToString();
 			Debug.Log(errorMsg);
 		}
 
